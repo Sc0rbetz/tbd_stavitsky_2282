@@ -223,6 +223,22 @@ _Результат запроса_
 
 # Многотабличные запросы
 
+### Таблицы для запросов 
+Таблицы, которые будут использованы для запросов:
+
+![](pics3/student.png)
+
+_Таблица - список студентов_
+
+![](pics3/hobby.png)
+
+_Таблица - список хобби_
+
+![](pics3/middle.png)
+
+_Таблица, в которой указаны, чем увлекаются студенты и сколько_
+
+
 ## Запрос 1
 Вывести все имена и фамилии студентов, и название хобби, которым занимается этот студент.
 
@@ -230,11 +246,11 @@ _Результат запроса_
 
 ~~~sql
 select st.name, st.surname, hb.name 
-from hobby as hb, student as st, student_hobby as sh 
+from hobby as hb, students as st, stud_hobby as sh 
 where
-	sh.student_id = st.id and
-	sh.hobby_id = hb.id and
-	(finished_at is null)
+	sh.n_z = st.n_z and
+	sh.id_hobby = hb.id and
+	(date_finish is null)
 ~~~
 
 ![](pics3/3.1.png)
@@ -247,19 +263,40 @@ _Результат запроса_
 Сам запрос:
 
 ~~~sql
-select * from student as st
-where st.id in
-	(select student_id started_at from student_hobby as sh
-	  where (sh.finished_at is null )
-	 order by (started_at::date) limit 1)
+select * from students as st
+where st.n_z in
+	(select n_z date_start from stud_hobby as sh
+	  where (sh.date_finish is null )
+	 order by (date_start::date) limit 1)
 ~~~
 
 ![](pics3/3.2.png)
 
 _Результат запроса_
 
-## Запрос 3
+## Запрос 4
+Вывести фамилию, имя, зачетку, дату рождения, название хобби и длительность в месяцах, для всех завершенных хобби Диапазон дат.
 
+Сам запрос:
+
+~~~sql
+SELECT st.surname, st.name, st.n_z, st.date_birth, h.name, sth.do_time FROM students st 
+INNER JOIN 
+  (SELECT sth.n_z, sth.id_hobby,
+    ((sth.date_finish - sth.date_start)/30) as do_time 
+  FROM stud_hobby sth 
+  WHERE sth.date_finish - sth.date_start IS NOT NULL) sth 
+ON st.n_z = sth.n_z 
+INNER JOIN hobby h
+ON sth.id_hobby = h.id
+~~~
+
+![](pics3/3.4.png)
+
+_Результат запроса_
+
+## Запрос 5
+Вывести фамилию, имя, зачетку, дату рождения студентов, которым исполнилось N полных лет на текущую дату, и которые имеют более 1 действующего хобби.
 
 Сам запрос:
 
@@ -270,8 +307,6 @@ _Результат запроса_
 ![](pics3/3..png)
 
 _Результат запроса_
-
-
 
 ## Запрос 1
 
